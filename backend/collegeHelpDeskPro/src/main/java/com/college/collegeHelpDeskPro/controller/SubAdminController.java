@@ -39,7 +39,7 @@ public class SubAdminController {
         return "Department [" + department.getName() + "] created successfully!";
     }
 
-    @PostMapping("/create-dep-admin")
+    @PostMapping("/create-dept-admin")
     @PreAuthorize("hasRole('SUB_ADMIN')")
     public String createDepartmentAdmin(@RequestBody User deptAdmin) {
         if(deptAdmin.getDepartmentId() == null || !departmentRepository.existsById(deptAdmin.getDepartmentId())) {
