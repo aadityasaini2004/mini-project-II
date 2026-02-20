@@ -32,4 +32,7 @@ public class User {
     private String course;
     private String section;
     private String year;
+
+    public void setVerified(boolean b) {
+    }
 }
