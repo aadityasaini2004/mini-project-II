@@ -8,10 +8,9 @@ import com.college.collegeHelpDeskPro.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/subadmin")
@@ -53,6 +52,29 @@ public class SubAdminController {
         userRepository.save(deptAdmin);
 
         return "Department Admin [" + deptAdmin.getName() + "] created successfully and linked to Department!";
+    }
+
+    @GetMapping("/pending-crs")
+    @PreAuthorize("hasRole('SUB_ADMIN')")
+    public List<User> getPendingCRs() {
+        return userRepository.findByRoleAndAccountVerified(Role.CR, false);
+    }
+
+    // 2. CR ko Approve (Verify) karne ke liye
+    @PutMapping("/approve-cr/{crId}")
+    @PreAuthorize("hasRole('SUB_ADMIN')")
+    public String approveCR(@PathVariable String crId) {
+        User crUser = userRepository.findById(crId)
+                .orElseThrow(() -> new RuntimeException("CR not found!"));
+
+        if (crUser.isAccountVerified()) {
+            return "CR is already verified!";
+        }
+
+        crUser.setAccountVerified(true);
+        userRepository.save(crUser);
+
+        return "CR [" + crUser.getName() + "] has been verified and can now log in!";
     }
 
 }

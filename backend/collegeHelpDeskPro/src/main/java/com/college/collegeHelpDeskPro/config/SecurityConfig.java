@@ -42,7 +42,7 @@ public class SecurityConfig {
 
                 // Endpoints ki permission naye tarike se
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/register", "/auth/login", "/auth/welcome").permitAll()
+                        .requestMatchers("/api/auth/register-cr", "/api/auth/login", "/api/auth/welcome").permitAll()
                         .anyRequest().authenticated()
                 )
 
