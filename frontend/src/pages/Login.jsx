@@ -31,12 +31,14 @@ const Login = () => {
                 navigate('/admin-dashboard');
             } else if (role === 'SUB_ADMIN') {
                 navigate('/subadmin-dashboard');
-            } else if (role === 'DEPT_ADMIN' || role === 'DEPT_HEAD') {
-                navigate('/head-dashboard');
+            } else if (role === 'DEPARTMENT_ADMIN' || role === 'DEPT_ADMIN') {
+                navigate('/dept-admin-dashboard');
             } else if (role === 'STAFF') {
                 navigate('/staff-dashboard');
             } else if (role === 'CR' || role === 'STUDENT') {
                 navigate('/cr-dashboard');
+            } else if (role === 'DEPARTMENT_HEAD' || role === 'DEPT_HEAD') {
+                navigate('/head-dashboard');
             } else {
                 navigate('/dashboard'); // Generic/Default dashboard
             }

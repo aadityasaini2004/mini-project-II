@@ -31,14 +31,14 @@ public class CRController {
     }
 
     // 1. TICKET RAISE KARNA (Create)
+    // 1. TICKET RAISE KARNA (Create)
     @PostMapping("/raise-ticket")
     public String raiseTicket(@RequestBody Ticket ticket) {
         User cr = getLoggedInCR();
 
-        // Backend khud CR ki ID set karega
+        // 🔥 YAHAN: University ID (Roll No) save hoga
         ticket.setCrId(cr.getUniversityId());
 
-        // CR ko batana padega ki query kis department ki hai
         if (ticket.getDepartmentId() == null) {
             return "Error: Please specify the Department ID for this query!";
         }
@@ -51,7 +51,8 @@ public class CRController {
     @GetMapping("/my-tickets")
     public List<Ticket> getMyTickets() {
         User cr = getLoggedInCR();
-        // Database se sirf is CR ki tickets utha ke laayega
-        return ticketRepository.findByCrId(cr.getId());
+
+        // 🔥 YAHAN BHI: University ID ke basis par hi search karna hai
+        return ticketRepository.findByCrId(cr.getUniversityId());
     }
 }
