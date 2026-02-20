@@ -5,9 +5,9 @@ import CRDashboard from './pages/CRDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import SubAdminDashboard from './pages/SubAdminDashboard';
 import DeptAdminDasboard from './pages/DeptAdminDasboard';
+import HeadDashboard from './pages/HeadDashboard';
 
 // Baaki roles ke liye abhi dummy (placeholder) dashboards bana diye hain
-const HeadDashboard = () => <h2 style={{padding: '20px', color: 'green'}}>Welcome Department Head Dashboard! 🏢</h2>;
 const StaffDashboard = () => <h2 style={{padding: '20px', color: 'orange'}}>Welcome Staff Dashboard! 🛠️</h2>;
 
 const GenericDashboard = () => (
