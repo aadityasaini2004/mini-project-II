@@ -36,21 +36,23 @@ public class SecurityConfig {
     // Security Filter Chain (Main Logic)
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.csrf().disable()
-                .authorizeHttpRequests()
-                // Public Endpoints (Login/Register sabke liye open hai)
-                .requestMatchers("/auth/register", "/auth/login", "/auth/welcome").permitAll()
-                // Baki sab endpoints ke liye authentication zaroori hai
-                .anyRequest().authenticated()
-                .and()
-                // Session nahi banayenge kyunki hum JWT use kar rahe hain (Stateless)
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                // Authentication Provider set karo
+        return http
+                // CSRF ko naye tarike se disable karna
+                .csrf(csrf -> csrf.disable())
+
+                // Endpoints ki permission naye tarike se
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/register", "/auth/login", "/auth/welcome").permitAll()
+                        .anyRequest().authenticated()
+                )
+
+                // Session management naye tarike se
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // Provider aur filter add karna
                 .authenticationProvider(authenticationProvider())
-                // Humara custom JWT Filter add karo (UsernamePassword filter se pehle)
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
+
                 .build();
     }
 
