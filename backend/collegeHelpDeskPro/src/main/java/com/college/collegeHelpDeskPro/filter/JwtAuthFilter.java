@@ -20,32 +20,40 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Autowired
-    private JwtUtils jwtService;
+    private JwtUtils jwtUtils; // Naya fix: Variable ka naam jwtUtils rakha hai
 
     @Autowired
     private UserInfoUserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
         String authHeader = request.getHeader("Authorization");
         String token = null;
         String username = null;
 
-        // Token nikalna (Format: "Bearer <token>")
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-            username = jwtService.extractUsername(token);
+
+            // 🔥 FIX: Token read karne ke time try-catch lagaya
+            try {
+                username = jwtUtils.extractUsername(token);
+            } catch (Exception e) {
+                System.out.println("Invalid or Malformed JWT Token found. Ignoring it. Error: " + e.getMessage());
+            }
         }
 
-        // Validation Logic
+        // Token aur UserDetails validate karna
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            if (jwtService.validateToken(token, userDetails.getUsername())) {
+
+            if (jwtUtils.validateToken(token, userDetails.getUsername())) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
+
         filterChain.doFilter(request, response);
     }
 }

@@ -8,8 +8,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer; // Naya import
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity; // Important for @PreAuthorize
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -18,43 +19,41 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.cors.CorsConfiguration; // Naya import
+import org.springframework.web.cors.CorsConfigurationSource; // Naya import
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource; // Naya import
+
+import java.util.Arrays; // Naya import
+import java.util.List; // Naya import
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // Isse hum Controller ke upar @PreAuthorize laga payenge
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Autowired
     private JwtAuthFilter authFilter;
 
-    // User Details Service (Database se user load karega)
     @Bean
     public UserDetailsService userDetailsService() {
         return new UserInfoUserDetailsService();
     }
 
-    // Security Filter Chain (Main Logic)
+    // 🔥 FIX 1: Security Filter Chain me .cors(Customizer.withDefaults()) lagana zaroori tha
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                // CSRF ko naye tarike se disable karna
+                .cors(Customizer.withDefaults()) // <--- YEH LINE MISSING THI! Yeh jadu karegi
                 .csrf(csrf -> csrf.disable())
-
-                // Endpoints ki permission naye tarike se
                 .authorizeHttpRequests(auth -> auth
+                        // OPTION requests ko allow karna zaroori hai CORS ke liye
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/register-cr", "/api/auth/login", "/api/auth/welcome").permitAll()
                         .anyRequest().authenticated()
                 )
-
-                // Session management naye tarike se
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                // Provider aur filter add karna
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
-
                 .build();
     }
 
@@ -76,16 +75,17 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
+    // 🔥 FIX 2: Spring Security wala CORS Configurer banaya (WebMvcConfigurer ki jagah)
     @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**") // Saari APIs ke liye allow kar do
-                        .allowedOrigins("*") // Abhi development ke liye sab allow kar rahe hain (Production me isko frontend ke URL se replace karte hain)
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*");
-            }
-        };
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(List.of("*")); // React port allow karega
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true); // Token bhejte time error na aaye
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
