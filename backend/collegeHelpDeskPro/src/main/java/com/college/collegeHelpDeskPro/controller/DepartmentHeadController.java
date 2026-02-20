@@ -1,11 +1,15 @@
 package com.college.collegeHelpDeskPro.controller;
 
 import com.college.collegeHelpDeskPro.model.Role;
+import com.college.collegeHelpDeskPro.model.Ticket;
+import com.college.collegeHelpDeskPro.model.TicketStatus;
 import com.college.collegeHelpDeskPro.model.User;
+import com.college.collegeHelpDeskPro.repository.TicketRepository;
 import com.college.collegeHelpDeskPro.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +27,9 @@ public class DepartmentHeadController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private TicketRepository ticketRepository;
 
     // Helper Method: Baar-baar logged-in Head ko nikalne se acha ek function bana liya
     private User getLoggedInHead() {
@@ -83,5 +90,43 @@ public class DepartmentHeadController {
 
         userRepository.deleteById(staffId);
         return "Staff removed successfully!";
+    }
+
+    @GetMapping("/department-tickets")
+    public List<Ticket> getDepartmentTickets() {
+        User head = getLoggedInHead();
+        // Head ke department ID se saari tickets nikal lo
+        return ticketRepository.findByDepartmentId(head.getDepartmentId());
+    }
+
+    // 2. ASSIGN TICKET TO STAFF (Head ticket staff ko dega)
+    @PutMapping("/assign-ticket/{ticketId}/{staffId}")
+    public String assignTicket(@PathVariable String ticketId, @PathVariable String staffId) {
+        User head = getLoggedInHead();
+
+        // 1. Pehle Ticket dhundo
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new RuntimeException("Ticket not found!"));
+
+        // Check: Kya yeh ticket mere hi department ki hai?
+        if (!ticket.getDepartmentId().equals(head.getDepartmentId())) {
+            return "Error: This ticket doesn't belong to your department!";
+        }
+
+        // 2. Phir Staff dhundo
+        User staff = userRepository.findById(staffId)
+                .orElseThrow(() -> new RuntimeException("Staff not found!"));
+
+        // Check: Kya yeh staff mere hi department ka hai aur sach me STAFF hai?
+        if (!staff.getDepartmentId().equals(head.getDepartmentId()) || staff.getRole() != Role.STAFF) {
+            return "Error: Invalid Staff! You can only assign tickets to STAFF of your own department.";
+        }
+
+        // 3. Ticket assign karo aur Status update karo
+        ticket.setAssignedStaffId(staff.getId());
+        ticket.setStatus(TicketStatus.IN_PROGRESS); // Assign hote hi status IN_PROGRESS ho jayega
+
+        ticketRepository.save(ticket);
+        return "Ticket [" + ticket.getTitle() + "] assigned successfully to Staff: " + staff.getName();
     }
 }
