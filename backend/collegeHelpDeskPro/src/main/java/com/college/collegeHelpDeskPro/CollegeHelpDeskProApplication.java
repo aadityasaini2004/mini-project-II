@@ -28,7 +28,7 @@ public class CollegeHelpDeskProApplication {
 				admin.setEmail("admin@krmu.edu.in");
 				admin.setPassword(passwordEncoder.encode("admin123")); // Default password
 				admin.setRole(Role.ADMIN);
-				admin.setVerified(true); // Admin ko verification ki zarurat nahi
+				admin.setAccountVerified(true);
 
 				userRepository.save(admin);
 				System.out.println("✅ Super Admin created automatically in MongoDB!");
