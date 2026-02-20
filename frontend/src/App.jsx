@@ -6,9 +6,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import SubAdminDashboard from './pages/SubAdminDashboard';
 import DeptAdminDasboard from './pages/DeptAdminDasboard';
 import HeadDashboard from './pages/HeadDashboard';
-
-// Baaki roles ke liye abhi dummy (placeholder) dashboards bana diye hain
-const StaffDashboard = () => <h2 style={{padding: '20px', color: 'orange'}}>Welcome Staff Dashboard! 🛠️</h2>;
+import StaffDashboard from './pages/StaffDashboard';
 
 const GenericDashboard = () => (
     <div style={{padding: '20px'}}>
