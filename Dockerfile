@@ -1,12 +1,12 @@
 # Build Stage
 FROM maven:3.8.5-openjdk-17 AS build
 WORKDIR /app
-# COPY . . ki jagah ye likho 👇
+# Humein sirf backend folder ka code chahiye
 COPY backend/ . 
 RUN mvn clean package -DskipTests
 
-# Baki sab same rahega...
-FROM openjdk:17-jdk-slim
+# Run Stage (Is line ko change kiya hai fix karne ke liye)
+FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
