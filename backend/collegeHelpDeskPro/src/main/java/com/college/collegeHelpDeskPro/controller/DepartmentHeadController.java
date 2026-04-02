@@ -31,13 +31,11 @@ public class DepartmentHeadController {
     @Autowired
     private TicketRepository ticketRepository;
 
-    // Helper Method: Baar-baar logged-in Head ko nikalne se acha ek function bana liya
     private User getLoggedInHead() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return userRepository.findByEmail(auth.getName()).orElseThrow(() -> new RuntimeException("Head not found"));
     }
 
-    // 1. ADD STAFF (Create)
     @PostMapping("/add-staff")
     public String addStaff(@RequestBody User staff) {
         User head = getLoggedInHead();
@@ -51,7 +49,6 @@ public class DepartmentHeadController {
         return "Staff [" + staff.getName() + "] added successfully to your department!";
     }
 
-    // 2. VIEW/SEARCH ALL STAFF (Read)
     @GetMapping("/my-staff")
     public List<User> getMyStaff() {
         User head = getLoggedInHead();
@@ -59,7 +56,6 @@ public class DepartmentHeadController {
         return userRepository.findByDepartmentIdAndRole(head.getDepartmentId(), Role.STAFF);
     }
 
-    // 3. UPDATE STAFF
     @PutMapping("/update-staff/{staffId}")
     public String updateStaff(@PathVariable String staffId, @RequestBody User updatedData) {
         User head = getLoggedInHead();
@@ -70,7 +66,6 @@ public class DepartmentHeadController {
         }
 
         User existingStaff = staffOpt.get();
-        // Update details (Name, Email etc. jo frontend se aaye)
         if (updatedData.getName() != null) existingStaff.setName(updatedData.getName());
         if (updatedData.getEmail() != null) existingStaff.setEmail(updatedData.getEmail());
 
@@ -78,7 +73,7 @@ public class DepartmentHeadController {
         return "Staff details updated successfully!";
     }
 
-    // 4. DELETE STAFF
+
     @DeleteMapping("/delete-staff/{staffId}")
     public String deleteStaff(@PathVariable String staffId) {
         User head = getLoggedInHead();
@@ -95,34 +90,29 @@ public class DepartmentHeadController {
     @GetMapping("/department-tickets")
     public List<Ticket> getDepartmentTickets() {
         User head = getLoggedInHead();
-        // Head ke department ID se saari tickets nikal lo
+
         return ticketRepository.findByDepartmentId(head.getDepartmentId());
     }
 
-    // 2. ASSIGN TICKET TO STAFF (Head ticket staff ko dega)
+
     @PutMapping("/assign-ticket/{ticketId}/{staffId}")
     public String assignTicket(@PathVariable String ticketId, @PathVariable String staffId) {
         User head = getLoggedInHead();
 
-        // 1. Pehle Ticket dhundo
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new RuntimeException("Ticket not found!"));
 
-        // Check: Kya yeh ticket mere hi department ki hai?
         if (!ticket.getDepartmentId().equals(head.getDepartmentId())) {
             return "Error: This ticket doesn't belong to your department!";
         }
 
-        // 2. Phir Staff dhundo
         User staff = userRepository.findById(staffId)
                 .orElseThrow(() -> new RuntimeException("Staff not found!"));
 
-        // Check: Kya yeh staff mere hi department ka hai aur sach me STAFF hai?
         if (!staff.getDepartmentId().equals(head.getDepartmentId()) || staff.getRole() != Role.STAFF) {
             return "Error: Invalid Staff! You can only assign tickets to STAFF of your own department.";
         }
 
-        // 3. Ticket assign karo aur Status update karo
         ticket.setAssignedStaffId(staff.getId());
         ticket.setStatus(TicketStatus.IN_PROGRESS); // Assign hote hi status IN_PROGRESS ho jayega
 

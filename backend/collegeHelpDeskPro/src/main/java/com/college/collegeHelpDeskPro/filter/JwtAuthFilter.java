@@ -20,7 +20,7 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Autowired
-    private JwtUtils jwtUtils; // Naya fix: Variable ka naam jwtUtils rakha hai
+    private JwtUtils jwtUtils;
 
     @Autowired
     private UserInfoUserDetailsService userDetailsService;
@@ -35,7 +35,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
 
-            // 🔥 FIX: Token read karne ke time try-catch lagaya
             try {
                 username = jwtUtils.extractUsername(token);
             } catch (Exception e) {
@@ -43,7 +42,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
         }
 
-        // Token aur UserDetails validate karna
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 

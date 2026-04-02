@@ -29,7 +29,6 @@ public class SubAdminController {
     @PreAuthorize("hasRole('SUB_ADMIN')")
     public String createDepartment(@RequestBody Department department) {
 
-        // Check karo ki department pehle se toh nahi hai
         if (departmentRepository.existsByName(department.getName())) {
             return "Error: Department [" + department.getName() + "] already exists!";
         }
@@ -60,7 +59,7 @@ public class SubAdminController {
         return userRepository.findByRoleAndAccountVerified(Role.CR, false);
     }
 
-    // 2. CR ko Approve (Verify) karne ke liye
+
     @PutMapping("/approve-cr/{crId}")
     @PreAuthorize("hasRole('SUB_ADMIN')")
     public String approveCR(@PathVariable String crId) {

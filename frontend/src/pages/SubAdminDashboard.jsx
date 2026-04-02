@@ -48,7 +48,7 @@ const SubAdminDashboard = () => {
             const response = await api.post('/api/subadmin/create-department', { name: deptName });
             alert(response.data);
             setDeptName('');
-            fetchDepartments(); // Naya department list me laane ke liye refresh karo
+            fetchDepartments(); 
         } catch (error) {
             alert(error.response?.data || "Failed to create Department");
             console.error(error);
@@ -79,7 +79,7 @@ const SubAdminDashboard = () => {
         try {
             const response = await api.put(`/api/subadmin/approve-cr/${crId}`);
             alert(response.data);
-            fetchPendingCRs(); // Approve hone ke baad list ko refresh karo
+            fetchPendingCRs(); 
         } catch (error) {
             alert("Failed to approve CR");
             console.error(error);
@@ -145,33 +145,41 @@ const SubAdminDashboard = () => {
                 </div>
             </div>
 
-            {/* --- CARD 3: Pending CR Approvals Table --- */}
-            <div style={{ background: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)', marginTop: '30px' }}>
+            {/* --- CARD 3: Pending CR Approvals Table (🔥 UPDATED WITH NEW COLUMNS) --- */}
+            <div style={{ background: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)', marginTop: '30px', overflowX: 'auto' }}>
                 <h3 style={{ color: '#dc3545' }}>⏳ Pending CR Approvals</h3>
                 {pendingCRs.length === 0 ? (
                     <p>No CRs are waiting for approval.</p>
                 ) : (
-                    <table border="1" cellPadding="10" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                    <table border="1" cellPadding="10" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
                         <thead style={{ background: '#f8d7da' }}>
                             <tr>
                                 <th>Name</th>
                                 <th>Email</th>
-                                <th>University ID</th>
+                                <th>Roll No / ID</th>
+                                <th>School</th>
+                                <th>Course</th>
+                                <th>Section</th>
+                                <th>Year</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {pendingCRs.map((cr) => (
                                 <tr key={cr.id}>
-                                    <td>{cr.name}</td>
+                                    <td><strong>{cr.name}</strong></td>
                                     <td>{cr.email}</td>
                                     <td>{cr.universityId}</td>
+                                    <td>{cr.school || 'N/A'}</td>
+                                    <td>{cr.course || 'N/A'}</td>
+                                    <td>{cr.section || 'N/A'}</td>
+                                    <td>{cr.year || 'N/A'}</td>
                                     <td>
                                         <button 
                                             onClick={() => handleApproveCR(cr.id)}
-                                            style={{ background: '#28a745', color: 'white', padding: '6px 12px', border: 'none', cursor: 'pointer', borderRadius: '4px' }}
+                                            style={{ background: '#28a745', color: 'white', padding: '6px 12px', border: 'none', cursor: 'pointer', borderRadius: '4px', fontWeight: 'bold' }}
                                         >
-                                            Approve CR
+                                            Approve
                                         </button>
                                     </td>
                                 </tr>

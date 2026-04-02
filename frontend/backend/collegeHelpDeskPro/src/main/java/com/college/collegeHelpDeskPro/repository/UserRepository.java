@@ -1,0 +1,18 @@
+package com.college.collegeHelpDeskPro.repository;
+
+import com.college.collegeHelpDeskPro.model.Role;
+import com.college.collegeHelpDeskPro.model.User;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface UserRepository extends MongoRepository<User, String> {
+
+    Optional<User> findByEmail(String email);
+
+    List<User> findByUniversityId(String universityId);
+
+    List<User> findByDepartmentIdAndRole(String departmentId, Role role);
+    List<User> findByRoleAndAccountVerified(Role role, boolean accountVerified);
+}

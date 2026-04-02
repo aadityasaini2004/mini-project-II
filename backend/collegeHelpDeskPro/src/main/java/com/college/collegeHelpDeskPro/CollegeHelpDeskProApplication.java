@@ -26,7 +26,7 @@ public class CollegeHelpDeskProApplication {
 				admin.setUniversityId("ADMIN-MASTER");
 				admin.setName("System Admin");
 				admin.setEmail("admin@krmu.edu.in");
-				admin.setPassword(passwordEncoder.encode("admin123")); // Default password
+				admin.setPassword(passwordEncoder.encode("admin123"));
 				admin.setRole(Role.ADMIN);
 				admin.setAccountVerified(true);
 

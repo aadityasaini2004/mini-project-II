@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react'; // 🔥 useEffect import kiya hai
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api'; // Tera jadu wala axios file
 
 const Login = () => {
@@ -7,40 +7,53 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
+    // 🔥 NAYA ADD KIYA: Agar pehle se logged in hai, toh wapas login page pe mat aane do
+    useEffect(() => {
+        const token = localStorage.getItem('jwtToken');
+        const rawRole = localStorage.getItem('userRole');
+
+        if (token && rawRole) {
+            const role = rawRole.replace('ROLE_', '').toUpperCase();
+            if (role === 'ADMIN') navigate('/admin-dashboard', { replace: true });
+            else if (role === 'SUB_ADMIN') navigate('/subadmin-dashboard', { replace: true });
+            else if (role === 'DEPARTMENT_ADMIN' || role === 'DEPT_ADMIN') navigate('/dept-admin-dashboard', { replace: true });
+            else if (role === 'STAFF') navigate('/staff-dashboard', { replace: true });
+            else if (role === 'CR' || role === 'STUDENT') navigate('/cr-dashboard', { replace: true });
+            else if (role === 'DEPARTMENT_HEAD' || role === 'DEPT_HEAD') navigate('/head-dashboard', { replace: true });
+            else navigate('/dashboard', { replace: true });
+        }
+    }, [navigate]);
+
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
             const response = await api.post('/api/auth/login', { email, password });
             
-            // 🔥 CHECK KARTE HAIN BACKEND NE KYA BHEJA:
             console.log("Backend Response:", response.data);
 
-            // Agar backend object bhej raha hai ya sirf token (string) bhej raha hai
             const token = response.data.token || response.data; 
-            
-            // Agar role nahi aaya, toh app crash na ho isliye ek default value daal di
             const rawRole = response.data.role || "ROLE_UNKNOWN"; 
 
             localStorage.setItem('jwtToken', token);
             localStorage.setItem('userRole', rawRole);
 
-            // Ab undefined pe replace nahi chalega, toh crash nahi hoga
             const role = rawRole.replace('ROLE_', '').toUpperCase();
 
+            // 🔥 YAHAN BHI UPDATE KIYA: { replace: true } lagaya taaki history replace ho jaye
             if (role === 'ADMIN') {
-                navigate('/admin-dashboard');
+                navigate('/admin-dashboard', { replace: true });
             } else if (role === 'SUB_ADMIN') {
-                navigate('/subadmin-dashboard');
+                navigate('/subadmin-dashboard', { replace: true });
             } else if (role === 'DEPARTMENT_ADMIN' || role === 'DEPT_ADMIN') {
-                navigate('/dept-admin-dashboard');
+                navigate('/dept-admin-dashboard', { replace: true });
             } else if (role === 'STAFF') {
-                navigate('/staff-dashboard');
+                navigate('/staff-dashboard', { replace: true });
             } else if (role === 'CR' || role === 'STUDENT') {
-                navigate('/cr-dashboard');
+                navigate('/cr-dashboard', { replace: true });
             } else if (role === 'DEPARTMENT_HEAD' || role === 'DEPT_HEAD') {
-                navigate('/head-dashboard');
+                navigate('/head-dashboard', { replace: true });
             } else {
-                navigate('/dashboard'); // Generic/Default dashboard
+                navigate('/dashboard', { replace: true }); 
             }
 
         } catch (error) {
@@ -75,6 +88,10 @@ const Login = () => {
                         Login
                     </button>
                 </form>
+
+                <div style={{ marginTop: '20px', fontSize: '14px' }}>
+                    New CR? <Link to="/register" style={{ color: '#007bff', textDecoration: 'none' }}>Register Here</Link>
+                </div>
             </div>
         </div>
     );

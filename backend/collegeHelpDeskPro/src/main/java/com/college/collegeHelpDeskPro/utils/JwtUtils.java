@@ -15,11 +15,8 @@ import java.util.function.Function;
 @Component
 public class JwtUtils {
 
-    // Is secret key ko production me environment variable me rakhna chahiye
-    // Abhi ke liye hardcode kar rahe hain (Base64 encoded key)
     public static final String SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
 
-    // Token Generate karna
     public String generateToken(String userName) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, userName);
@@ -30,7 +27,7 @@ public class JwtUtils {
                 .setClaims(claims)
                 .setSubject(userName)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 Hours validity
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
     }
 
@@ -39,7 +36,6 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // Token se Username nikalna
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -53,7 +49,6 @@ public class JwtUtils {
         return Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token).getBody();
     }
 
-    // Token check karna (Valid hai ya nahi)
     public Boolean validateToken(String token, String username) {
         final String extractedUsername = extractUsername(token);
         return (extractedUsername.equals(username) && !isTokenExpired(token));

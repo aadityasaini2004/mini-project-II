@@ -24,37 +24,30 @@ public class StaffController {
     @Autowired
     private UserRepository userRepository;
 
-    // Helper Method: Jo Staff login hai, uski details nikalne ke liye
     private User getLoggedInStaff() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new RuntimeException("Staff not found"));
     }
 
-    // 1. APNI ASSIGNED TICKETS DEKHNA
     @GetMapping("/my-tickets")
     public List<Ticket> getMyAssignedTickets() {
         User staff = getLoggedInStaff();
-        // Sirf wahi tickets aayengi jo is staff ki _id par assigned hain
+
         return ticketRepository.findByAssignedStaffId(staff.getId());
     }
 
-    // 2. TICKET KA STATUS UPDATE KARNA (e.g., PENDING -> RESOLVED)
     @PutMapping("/update-status/{ticketId}")
     public String updateTicketStatus(@PathVariable String ticketId, @RequestParam TicketStatus status) {
         User staff = getLoggedInStaff();
 
-        // Pehle Ticket dhundo
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new RuntimeException("Ticket not found!"));
 
-        // SECURITY CHECK: Kya yeh ticket sach mein is staff ko assign hui thi?
-        // Agar nahi, toh error de do (taaki koi dusre ka ticket update na kar de)
         if (ticket.getAssignedStaffId() == null || !ticket.getAssignedStaffId().equals(staff.getId())) {
             return "Error: You are not authorized! This ticket is not assigned to you.";
         }
 
-        // Status update karo
         ticket.setStatus(status);
         ticketRepository.save(ticket);
 

@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/cr")
-@PreAuthorize("hasRole('CR')") // Sirf CR isko access kar sakta hai
+@PreAuthorize("hasRole('CR')")
 public class CRController {
 
     @Autowired
@@ -23,20 +23,18 @@ public class CRController {
     @Autowired
     private UserRepository userRepository;
 
-    // Helper Method: Logged-in CR ki details nikalne ke liye
+
     private User getLoggedInCR() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new RuntimeException("CR not found"));
     }
 
-    // 1. TICKET RAISE KARNA (Create)
-    // 1. TICKET RAISE KARNA (Create)
+
     @PostMapping("/raise-ticket")
     public String raiseTicket(@RequestBody Ticket ticket) {
         User cr = getLoggedInCR();
 
-        // 🔥 YAHAN: University ID (Roll No) save hoga
         ticket.setCrId(cr.getUniversityId());
 
         if (ticket.getDepartmentId() == null) {
@@ -47,12 +45,11 @@ public class CRController {
         return "Ticket [" + ticket.getTitle() + "] raised successfully!";
     }
 
-    // 2. APNI TICKETS DEKHNA (Read)
+
     @GetMapping("/my-tickets")
     public List<Ticket> getMyTickets() {
         User cr = getLoggedInCR();
 
-        // 🔥 YAHAN BHI: University ID ke basis par hi search karna hai
         return ticketRepository.findByCrId(cr.getUniversityId());
     }
 }

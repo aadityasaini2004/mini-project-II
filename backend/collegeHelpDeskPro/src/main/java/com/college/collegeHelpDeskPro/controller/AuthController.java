@@ -40,14 +40,13 @@ public class AuthController {
     @PostMapping("/register-cr")
     public String registerCR(@RequestBody User crUser) {
         crUser.setRole(Role.CR);
-        crUser.setAccountVerified(false); // PENDING APPROVAL
+        crUser.setAccountVerified(false);
         crUser.setPassword(passwordEncoder.encode(crUser.getPassword()));
         userRepository.save(crUser);
 
         return "CR Registration successful! Please wait for approval from College Administration.";
     }
 
-    // 🔥 JADU YAHAN HAI: Ab yeh String nahi, proper JSON Response dega
     @PostMapping("/login")
     public ResponseEntity<?> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -55,19 +54,15 @@ public class AuthController {
         );
 
         if (authentication.isAuthenticated()) {
-            // 1. Token banaya
             String token = jwtService.generateToken(authRequest.getEmail());
 
-            // 2. Database se User nikala taaki Role pata chal sake
             User user = userRepository.findByEmail(authRequest.getEmail())
                     .orElseThrow(() -> new RuntimeException("User not found in DB"));
 
-            // 3. Token aur Role dono ko ek Map me daala
             Map<String, Object> responseData = new HashMap<>();
             responseData.put("token", token);
             responseData.put("role", "ROLE_" + user.getRole().name());
 
-            // 4. JSON format me frontend ko bhej diya
             return ResponseEntity.ok(responseData);
 
         } else {

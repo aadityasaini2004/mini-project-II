@@ -39,16 +39,14 @@ public class SecurityConfig {
         return new UserInfoUserDetailsService();
     }
 
-    // 🔥 FIX 1: Security Filter Chain me .cors(Customizer.withDefaults()) lagana zaroori tha
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .cors(Customizer.withDefaults()) // <--- YEH LINE MISSING THI! Yeh jadu karegi
+                .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // OPTION requests ko allow karna zaroori hai CORS ke liye
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/auth/register-cr", "/api/auth/login", "/api/auth/welcome").permitAll()
+                        .requestMatchers("/api/auth/register-cr", "/api/auth/login", "/api/auth/welcome", "/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -75,14 +73,13 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    // 🔥 FIX 2: Spring Security wala CORS Configurer banaya (WebMvcConfigurer ki jagah)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*")); // React port allow karega
+        configuration.setAllowedOriginPatterns(List.of("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true); // Token bhejte time error na aaye
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

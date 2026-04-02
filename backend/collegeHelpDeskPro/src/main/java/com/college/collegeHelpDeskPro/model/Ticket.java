@@ -13,16 +13,16 @@ public class Ticket {
     @Id
     private String id;
 
-    private String title;       // Example: "Projector not working in Room 302"
-    private String description; // Example: "Wire is broken..."
+    private String title;
+    private String description;
 
-    private String crId;        // Jis CR ne ticket raise kiya uska ID
+    private String crId;
 
-    private String departmentId; // Kis department ki query hai (IT Cell, Accounts etc.)
+    private String departmentId;
 
-    private String assignedStaffId; // Kis staff ko assign hui (Shuru mein yeh null rahega)
+    private String assignedStaffId;
 
-    private TicketStatus status = TicketStatus.PENDING; // Default status Pending hoga
+    private TicketStatus status = TicketStatus.PENDING;
 
     private Date createdAt = new Date();
 }

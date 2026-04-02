@@ -13,16 +13,15 @@ import java.util.stream.Collectors;
 
 public class UserInfoUserDetails implements UserDetails {
 
-    private String name; // Email as username
+    private String name;
     private String password;
     private List<GrantedAuthority> authorities;
 
     public UserInfoUserDetails(User user) {
-        this.name = user.getEmail(); // Important: Hum email se login karwa rahe hain
+        this.name = user.getEmail();
         this.password = user.getPassword();
-        // Role ko authority mein convert karo. Example: "ROLE_ADMIN"
         this.authorities = Arrays.stream(user.getRole().name().split(","))
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role)) // Prefix ROLE_ zaroori hai
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toList());
     }
 
