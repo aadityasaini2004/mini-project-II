@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:8080', // Tumhara Spring Boot URL
+    // 🚀 Purana localhost hatao, naya Render URL lagao
+    baseURL: 'https://mini-project-ii-1-y1lt.onrender.com', 
 });
 
 // Har request ke sath automatically Token bhejne ka jadu
